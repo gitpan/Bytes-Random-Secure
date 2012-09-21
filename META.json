@@ -22,7 +22,7 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Statistics::Basic" : "1"
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "configure" : {
@@ -41,5 +41,5 @@
       }
    },
    "release_status" : "stable",
-   "version" : "0.04"
+   "version" : "0.05"
 }
