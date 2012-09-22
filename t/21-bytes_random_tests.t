@@ -11,7 +11,7 @@ if ( $@ ) {
 }
 
 
-BEGIN { use_ok('Bytes::Random::Secure') };
+use_ok('Bytes::Random::Secure');
 
 
 for( 1..40 )
