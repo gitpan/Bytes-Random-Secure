@@ -28,24 +28,35 @@ foreach my $want ( qw/ -1 0 1 2 3 4 5 6 7 8 16 17 1024 10000 / ) {
       "random_bytes($want) returns $correct bytes." );
 }
 
-my( $count, $low, $high, $range_err ) = ( 0, 0, 0, 0 );
-while( $low < 10 || $high < 10 ) {
-  my $byte = ord random_bytes( 1 );
-  $byte == 0 && $low++;
-  $byte == 255 && $high++;
-  $byte < 0 || $byte > 255 && $range_err++;
-  $count++;
+my @counts;
+my $iterations = 500;  
+for( 1 .. $iterations ) {
+    my( $count, $low, $high, $range_err ) = ( 0, 0, 0, 0 );
+    while( $low < 10 || $high < 10 ) {
+      my $byte = ord random_bytes( 1 );
+      $byte == 0 && $low++;
+      $byte == 255 && $high++;
+      $byte < 0 || $byte > 255 && $range_err++;
+      $count++;
+    }
+    ok( $low,  "random_bytes produces $low bytes of '0'."   );
+    ok( $high, "random_bytes produces $high bytes of '255'." );
+    ok( !$range_err, "random_bytes produced $range_err values out of 0 .. 255.");
+    push @counts, $count;
 }
 
-ok( $count > 1500 );
-ok( $count < 4500 );
+my $total_count;
+$total_count += $_ for @counts;
+my $avg_count = $total_count / scalar @counts;
 
-diag "$count iterations required to reach five '0' bytes and five '255' "
-  .  "bytes.  Approx avg is 3012.\n";
-
-ok( $low,  "random_bytes produces $low bytes of '0'."   );
-ok( $high, "random_bytes produces $high bytes of '255'." );
-ok( !$range_err, "random_bytes produced $range_err values out of 0 .. 255.");
+# Allow for a 10% deviation from average after 500 passes.
+# Testing of 500 test-suite runs shows that the deviation should never be more
+# than about 4%, but we don't need tests failing unless things are really wonky.
+ok( ( $avg_count > 2711 && $avg_count < 3313 ),
+    "$avg_count average iterations to reach five '0' bytes and five '255' " .
+    'bytes. Within reasonable range (expected approx 3012)'
+);
+diag "Average iterations: $avg_count (expect approx 3012).";
 
 foreach my $want ( qw/ -1 0 1 2 3 4 5 6 7 8 16 17 1024 10000 / ) {
   my $result  = random_bytes_hex( $want );
